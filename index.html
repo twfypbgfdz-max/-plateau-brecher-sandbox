@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plateau-Brecher – Trainiere smarter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #0a0a0a;
+      --surface: #111111;
+      --border:  #1e1e1e;
+      --muted:   #444444;
+      --text:    #d4d4d4;
+      --white:   #f0f0f0;
+      --yellow:  #e8ff00;
+      --yellow2: #b8cc00;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 1.3rem;
+      letter-spacing: 0.05em;
+      color: var(--yellow);
+      text-transform: uppercase;
+    }
+
+    .nav-cta {
+      background: var(--yellow);
+      color: var(--black);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.5rem 1.2rem;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .nav-cta:hover { background: var(--yellow2); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 8rem 2rem 4rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .hero-eyebrow {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(3rem, 9vw, 7rem);
+      line-height: 0.92;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 2rem;
+    }
+
+    .hero-title span {
+      color: var(--yellow);
+      display: block;
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--text);
+      max-width: 520px;
+      margin-bottom: 3rem;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn-primary {
+      background: var(--yellow);
+      color: var(--black);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.9rem 2rem;
+      text-decoration: none;
+      transition: background 0.15s;
+      display: inline-block;
+    }
+    .btn-primary:hover { background: var(--yellow2); }
+
+    .btn-ghost {
+      color: var(--text);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-bottom: 1px solid var(--muted);
+      padding-bottom: 2px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .btn-ghost:hover { color: var(--white); border-color: var(--white); }
+
+    .hero-note {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* STATS BAR */
+    .stats-bar {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      gap: 4rem;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 2.5rem;
+      color: var(--yellow);
+      line-height: 1;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 0.3rem;
+    }
+
+    /* FEATURES */
+    .section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+    }
+
+    .section-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 3rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .feature {
+      background: var(--surface);
+      padding: 2rem;
+    }
+
+    .feature-icon {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-text {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* PRICING */
+    .pricing-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 3rem 2rem;
+      max-width: 420px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .pricing-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 1rem;
+    }
+
+    .pricing-price {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 4rem;
+      color: var(--white);
+      line-height: 1;
+    }
+
+    .pricing-period {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 2.5rem;
+      text-align: left;
+    }
+
+    .pricing-features li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .pricing-features li::before {
+      content: '→';
+      color: var(--yellow);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* SANDBOX BANNER */
+    .sandbox-banner {
+      background: #1a1a00;
+      border-bottom: 2px solid var(--yellow);
+      padding: 0.5rem 1rem;
+      text-align: center;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      color: var(--yellow);
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 600px) {
+      .stats-bar { gap: 2rem; }
+      .hero-title { font-size: 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sandbox-banner">⚠ Sandbox / MVP — Kein echtes Deployment</div>
+
+  <nav>
+    <div class="nav-logo">Plateau-Brecher</div>
+    <a href="app.html" class="nav-cta">App starten</a>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-eyebrow">Intelligente Trainingsplanung</div>
+    <h1 class="hero-title">
+      Kein Plateau.<br>
+      <span>Nur Fortschritt.</span>
+    </h1>
+    <p class="hero-sub">
+      Plateau-Brecher trackt deine Bestleistungen, erkennt Stagnation und passt deinen Plan automatisch an — bevor du überhaupt merkst, dass du feststeckst.
+    </p>
+    <div class="hero-actions">
+      <a href="app.html" class="btn-primary">Kostenlos testen</a>
+      <a href="#features" class="btn-ghost">Was kann die App?</a>
+    </div>
+    <p class="hero-note">Kein Account nötig zum Testen · UserID reicht</p>
+  </section>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-number">12+</span>
+      <span class="stat-label">Analysefelder</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">∞</span>
+      <span class="stat-label">PR-Tracking</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">100%</span>
+      <span class="stat-label">Offline-fähig</span>
+    </div>
+  </div>
+
+  <section class="section" id="features">
+    <div class="section-label">Funktionen</div>
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-icon">📈</div>
+        <div class="feature-title">PR-System</div>
+        <p class="feature-text">Jede Bestleistung wird automatisch erkannt und gespeichert — pro Übung, pro Wiederholungszahl.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🔄</div>
+        <div class="feature-title">Deload-Logik</div>
+        <p class="feature-text">Die App erkennt Stagnation und schlägt automatisch Deload-Wochen vor bevor Übertraining einsetzt.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Trainingsanalyse</div>
+        <p class="feature-text">Volumen, Intensität, Readiness und subjektive Belastung werden pro Session ausgewertet.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📱</div>
+        <div class="feature-title">Mobile First</div>
+        <p class="feature-text">Komplett im Browser — kein App-Store, kein Download. Funktioniert auf iPhone Safari offline.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⚙️</div>
+        <div class="feature-title">Geräteprofile</div>
+        <p class="feature-text">Verschiedene Gewichtssysteme und Geräte pro Übung konfigurierbar — für Gym und Hometraining.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">☁️</div>
+        <div class="feature-title">Cloud-Sync</div>
+        <p class="feature-text">Daten werden automatisch gesichert. Gerätewechsel kein Problem — einfach UserID eingeben.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="pricing">
+    <div class="section-label">Preis</div>
+    <div class="pricing-box">
+      <div class="pricing-label">Pro-Zugang</div>
+      <div class="pricing-price">4,99€</div>
+      <div class="pricing-period">pro Monat · jederzeit kündbar</div>
+      <ul class="pricing-features">
+        <li>Vollständiger App-Zugang</li>
+        <li>Unbegrenztes PR-Tracking</li>
+        <li>Cloud-Sync über alle Geräte</li>
+        <li>Trainingsanalyse & Statistiken</li>
+        <li>Deload-Erkennung</li>
+        <li>Prioritäts-Support</li>
+      </ul>
+      <a href="app.html" class="btn-primary" style="width:100%;text-align:center;">Jetzt starten</a>
+    </div>
+  </section>
+
+  <footer>
+    Plateau-Brecher · Sandbox MVP · Kein echtes Produkt · Nur für Testzwecke
+  </footer>
+
+</body>
+</html>

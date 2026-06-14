@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plateau-Brecher App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #0a0a0a;
+      --surface: #111111;
+      --card:    #161616;
+      --border:  #1e1e1e;
+      --muted:   #555555;
+      --text:    #d4d4d4;
+      --white:   #f0f0f0;
+      --yellow:  #e8ff00;
+      --yellow2: #b8cc00;
+      --red:     #ff4444;
+      --green:   #44ff88;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      font-size: 15px;
+      min-height: 100vh;
+    }
+
+    /* SANDBOX BANNER */
+    .sandbox-banner {
+      background: #1a1a00;
+      border-bottom: 2px solid var(--yellow);
+      padding: 0.4rem 1rem;
+      text-align: center;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      color: var(--yellow);
+      text-transform: uppercase;
+    }
+
+    /* LOGIN SCREEN */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .login-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 3rem 2.5rem;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 1.8rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 0.4rem;
+    }
+
+    .login-sub {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--black);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+      padding: 0.75rem 1rem;
+      outline: none;
+      transition: border-color 0.15s;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-input:focus { border-color: var(--yellow); }
+    .form-input::placeholder { color: var(--muted); }
+
+    .btn {
+      width: 100%;
+      background: var(--yellow);
+      color: var(--black);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.85rem;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: var(--yellow2); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      margin-top: 0.75rem;
+    }
+    .btn-secondary:hover { color: var(--text); background: var(--border); }
+
+    .login-hint {
+      margin-top: 1.5rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .login-hint strong {
+      color: var(--yellow);
+      cursor: pointer;
+    }
+
+    /* APP SCREEN */
+    #app-screen { display: none; }
+
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      position: sticky; top: 0; z-index: 50;
+    }
+
+    .app-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 1.2rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--yellow);
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .user-badge span {
+      color: var(--yellow);
+      font-weight: 700;
+    }
+
+    .logout-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.6rem;
+      border: 1px solid var(--border);
+      transition: all 0.15s;
+    }
+    .logout-btn:hover { color: var(--red); border-color: var(--red); }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      overflow-x: auto;
+    }
+
+    .tab {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.85rem 1.5rem;
+      border: none;
+      background: none;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .tab.active {
+      color: var(--yellow);
+      border-bottom-color: var(--yellow);
+    }
+
+    .tab:hover:not(.active) { color: var(--text); }
+
+    /* CONTENT AREA */
+    .content {
+      padding: 1.5rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* TAB PANELS */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* TRAINING PANEL */
+    .section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.3rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 1.5rem;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 1rem;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      align-items: end;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .input-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .app-input {
+      background: var(--black);
+      border: 1px solid var(--border);
+      color: var(--white);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem;
+      padding: 0.6rem 0.8rem;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.15s;
+    }
+
+    .app-input:focus { border-color: var(--yellow); }
+    .app-input::placeholder { color: var(--muted); }
+
+    select.app-input {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.8rem center;
+      padding-right: 2rem;
+    }
+
+    .btn-save {
+      background: var(--yellow);
+      color: var(--black);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.65rem 1.5rem;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 0.25rem;
+    }
+    .btn-save:hover { background: var(--yellow2); }
+
+    /* LOG */
+    .log-entry {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--yellow);
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .log-main {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: 0.03em;
+    }
+
+    .log-meta {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+
+    .log-weight {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--yellow);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .empty-icon {
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+      opacity: 0.4;
+    }
+
+    /* STATUS */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+
+    .status-dot.synced { background: var(--green); }
+    .status-dot.local { background: var(--yellow); }
+    .status-dot.error { background: var(--red); }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(4rem);
+      background: var(--surface);
+      border: 1px solid var(--yellow);
+      color: var(--yellow);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.75rem 1.5rem;
+      opacity: 0;
+      transition: all 0.25s;
+      z-index: 200;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 500px) {
+      .input-row { grid-template-columns: 1fr 1fr; }
+      .input-row .input-group:first-child { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sandbox-banner">⚠ Sandbox MVP — Lokaler Modus · Kein echtes Backend</div>
+
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen">
+    <div class="login-box">
+      <div class="login-logo">Plateau-Brecher</div>
+      <div class="login-sub">Gib deine UserID ein um zu starten</div>
+
+      <label class="form-label" for="userid-input">UserID</label>
+      <input
+        class="form-input"
+        id="userid-input"
+        type="text"
+        placeholder="z.B. TEST_001"
+        autocomplete="off"
+        autocapitalize="characters"
+      />
+
+      <button class="btn" onclick="handleLogin()">Einloggen</button>
+      <button class="btn btn-secondary" onclick="useTestUser()">Test-User verwenden (TEST_001)</button>
+
+      <div class="login-hint">
+        Noch keine UserID? <strong onclick="alert('Im Sandbox-Modus: Einfach TEST_001 verwenden.')">UserID anfordern →</strong><br>
+        Deine Daten werden lokal gespeichert.
+      </div>
+    </div>
+  </div>
+
+  <!-- APP SCREEN -->
+  <div id="app-screen">
+    <div class="app-header">
+      <div class="app-logo">Plateau-Brecher</div>
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <div class="user-badge">User: <span id="display-userid"></span></div>
+        <button class="logout-btn" onclick="handleLogout()">Abmelden</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('training', this)">Training</button>
+      <button class="tab" onclick="switchTab('log', this)">Verlauf</button>
+      <button class="tab" onclick="switchTab('prs', this)">Bestleistungen</button>
+      <button class="tab" onclick="switchTab('debug', this)">Debug</button>
+    </div>
+
+    <div class="content">
+
+      <!-- TRAINING TAB -->
+      <div id="panel-training" class="panel active">
+        <div class="status-bar">
+          <div class="status-dot local" id="status-dot"></div>
+          <span id="status-text">Lokaler Modus · Kein Backend verbunden</span>
+        </div>
+
+        <div class="section-title">Training eintragen</div>
+
+        <div class="card">
+          <div class="card-title">Übung</div>
+          <div class="input-row">
+            <div class="input-group">
+              <div class="input-label">Übung</div>
+              <select class="app-input" id="input-exercise">
+                <option value="">Wählen...</option>
+                <option>Bankdrücken</option>
+                <option>Kniebeugen</option>
+                <option>Kreuzheben</option>
+                <option>Schulterdrücken</option>
+                <option>Latzug</option>
+                <option>Rudern</option>
+                <option>Bizepscurl</option>
+                <option>Trizepsdrücken</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <div class="input-label">Gewicht (kg)</div>
+              <input class="app-input" id="input-weight" type="number" min="0" step="0.5" placeholder="100" />
+            </div>
+            <div class="input-group">
+              <div class="input-label">Wiederholungen</div>
+              <input class="app-input" id="input-reps" type="number" min="1" max="100" placeholder="8" />
+            </div>
+          </div>
+          <div class="input-row" style="grid-template-columns: 1fr 1fr;">
+            <div class="input-group">
+              <div class="input-label">Sätze</div>
+              <input class="app-input" id="input-sets" type="number" min="1" max="20" placeholder="3" />
+            </div>
+            <div class="input-group">
+              <div class="input-label">Readiness (1–10)</div>
+              <input class="app-input" id="input-readiness" type="number" min="1" max="10" placeholder="7" />
+            </div>
+          </div>
+          <button class="btn-save" onclick="saveEntry()">Satz speichern →</button>
+        </div>
+      </div>
+
+      <!-- LOG TAB -->
+      <div id="panel-log" class="panel">
+        <div class="section-title">Verlauf</div>
+        <div id="log-list">
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            Noch keine Einträge. Trage dein erstes Training ein.
+          </div>
+        </div>
+      </div>
+
+      <!-- PRs TAB -->
+      <div id="panel-prs" class="panel">
+        <div class="section-title">Bestleistungen</div>
+        <div id="pr-list">
+          <div class="empty-state">
+            <div class="empty-icon">🏆</div>
+            Noch keine Bestleistungen gesetzt.
+          </div>
+        </div>
+      </div>
+
+      <!-- DEBUG TAB -->
+      <div id="panel-debug" class="panel">
+        <div class="section-title">Debug / Sandbox-Info</div>
+        <div class="card">
+          <div class="card-title">Aktueller Status</div>
+          <pre id="debug-output" style="font-size:0.75rem;color:var(--muted);line-height:1.7;overflow-x:auto;"></pre>
+        </div>
+        <div class="card" style="margin-top:1rem;">
+          <div class="card-title">Aktionen</div>
+          <button class="btn-save" onclick="clearAllData()" style="background:var(--red);margin-right:0.75rem;">Alle Daten löschen</button>
+          <button class="btn-save" onclick="exportData()">Daten exportieren</button>
+        </div>
+        <div class="card" style="margin-top:1rem;">
+          <div class="card-title">Backend-URL (vorbereitet)</div>
+          <input class="app-input" id="backend-url-input" type="text" placeholder="https://script.google.com/..." style="margin-bottom:0.75rem;" />
+          <button class="btn-save" onclick="saveBackendUrl()">URL speichern</button>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:0.75rem;">Im Sandbox-Modus inaktiv. Wird später für Google Apps Script verwendet.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ── STATE ──────────────────────────────────────────────────────
+    const STORAGE_KEY_USER   = 'pb_sandbox_userid';
+    const STORAGE_KEY_LOG    = 'pb_sandbox_log';
+    const STORAGE_KEY_PRS    = 'pb_sandbox_prs';
+    const STORAGE_KEY_URL    = 'pb_sandbox_backend_url';
+
+    let currentUser = null;
+    let trainingLog = [];
+    let personalRecords = {};
+
+    // ── INIT ───────────────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedUser = localStorage.getItem(STORAGE_KEY_USER);
+      if (savedUser) {
+        loginUser(savedUser);
+      }
+      const savedUrl = localStorage.getItem(STORAGE_KEY_URL);
+      if (savedUrl) {
+        document.getElementById('backend-url-input').value = savedUrl;
+      }
+    });
+
+    // ── AUTH ───────────────────────────────────────────────────────
+    function handleLogin() {
+      const input = document.getElementById('userid-input').value.trim().toUpperCase();
+      if (!input) { showToast('Bitte UserID eingeben'); return; }
+      loginUser(input);
+    }
+
+    function useTestUser() {
+      document.getElementById('userid-input').value = 'TEST_001';
+      loginUser('TEST_001');
+    }
+
+    function loginUser(userID) {
+      currentUser = userID;
+      localStorage.setItem(STORAGE_KEY_USER, userID);
+
+      // Lade nutzerspezifische Daten
+      const rawLog = localStorage.getItem(STORAGE_KEY_LOG + '_' + userID);
+      const rawPRs = localStorage.getItem(STORAGE_KEY_PRS + '_' + userID);
+      trainingLog = rawLog ? JSON.parse(rawLog) : [];
+      personalRecords = rawPRs ? JSON.parse(rawPRs) : {};
+
+      document.getElementById('display-userid').textContent = userID;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app-screen').style.display = 'block';
+
+      renderLog();
+      renderPRs();
+      updateDebug();
+      showToast('Eingeloggt als ' + userID);
+    }
+
+    function handleLogout() {
+      currentUser = null;
+      document.getElementById('login-screen').style.display = 'flex';
+      document.getElementById('app-screen').style.display = 'none';
+      document.getElementById('userid-input').value = '';
+    }
+
+    // ── TABS ───────────────────────────────────────────────────────
+    function switchTab(name, btn) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('panel-' + name).classList.add('active');
+      btn.classList.add('active');
+      if (name === 'debug') updateDebug();
+    }
+
+    // ── SAVE ENTRY ─────────────────────────────────────────────────
+    function saveEntry() {
+      const exercise  = document.getElementById('input-exercise').value;
+      const weight    = parseFloat(document.getElementById('input-weight').value);
+      const reps      = parseInt(document.getElementById('input-reps').value);
+      const sets      = parseInt(document.getElementById('input-sets').value);
+      const readiness = parseInt(document.getElementById('input-readiness').value);
+
+      if (!exercise) { showToast('Bitte Übung wählen'); return; }
+      if (isNaN(weight) || weight <= 0) { showToast('Ungültiges Gewicht'); return; }
+      if (isNaN(reps) || reps <= 0) { showToast('Ungültige Wiederholungen'); return; }
+
+      const entry = {
+        id:        Date.now(),
+        userID:    currentUser,
+        exercise,
+        weight,
+        reps,
+        sets:      isNaN(sets) ? 1 : sets,
+        readiness: isNaN(readiness) ? null : readiness,
+        date:      new Date().toISOString(),
+        synced:    false   // Vorbereitet für späteres Backend-Sync
+      };
+
+      trainingLog.unshift(entry);
+      localStorage.setItem(STORAGE_KEY_LOG + '_' + currentUser, JSON.stringify(trainingLog));
+
+      checkPR(entry);
+      renderLog();
+      renderPRs();
+      updateDebug();
+      showToast('Gespeichert ✓');
+    }
+
+    // ── PR CHECK ───────────────────────────────────────────────────
+    function checkPR(entry) {
+      const key = entry.exercise + '_' + entry.reps + 'RM';
+      const existing = personalRecords[key];
+      let isNewPR = false;
+
+      if (!existing || entry.weight > existing.weight) {
+        personalRecords[key] = {
+          exercise: entry.exercise,
+          reps:     entry.reps,
+          weight:   entry.weight,
+          date:     entry.date
+        };
+        isNewPR = true;
+      }
+
+      // Auch als Max-PR speichern (unabhängig von Wdh)
+      const maxKey = entry.exercise + '_max';
+      if (!personalRecords[maxKey] || entry.weight > personalRecords[maxKey].weight) {
+        personalRecords[maxKey] = {
+          exercise: entry.exercise,
+          reps:     entry.reps,
+          weight:   entry.weight,
+          date:     entry.date
+        };
+      }
+
+      localStorage.setItem(STORAGE_KEY_PRS + '_' + currentUser, JSON.stringify(personalRecords));
+
+      if (isNewPR) {
+        setTimeout(() => showToast('🏆 Neuer PR! ' + entry.weight + 'kg × ' + entry.reps), 400);
+      }
+    }
+
+    // ── RENDER LOG ─────────────────────────────────────────────────
+    function renderLog() {
+      const container = document.getElementById('log-list');
+      if (trainingLog.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div>Noch keine Einträge.</div>`;
+        return;
+      }
+
+      container.innerHTML = trainingLog.slice(0, 30).map(e => {
+        const d = new Date(e.date);
+        const dateStr = d.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit' })
+                      + ' ' + d.toLocaleTimeString('de-DE', { hour:'2-digit', minute:'2-digit' });
+        return `
+          <div class="log-entry">
+            <div>
+              <div class="log-main">${e.exercise}</div>
+              <div class="log-meta">${e.sets} × ${e.reps} Wdh · ${dateStr}${e.readiness ? ' · Readiness ' + e.readiness + '/10' : ''}</div>
+            </div>
+            <div class="log-weight">${e.weight} kg</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ── RENDER PRs ─────────────────────────────────────────────────
+    function renderPRs() {
+      const container = document.getElementById('pr-list');
+      const maxKeys = Object.keys(personalRecords).filter(k => k.endsWith('_max'));
+
+      if (maxKeys.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-icon">🏆</div>Noch keine Bestleistungen.</div>`;
+        return;
+      }
+
+      container.innerHTML = maxKeys.map(k => {
+        const pr = personalRecords[k];
+        const d = new Date(pr.date);
+        const dateStr = d.toLocaleDateString('de-DE');
+        return `
+          <div class="log-entry">
+            <div>
+              <div class="log-main">${pr.exercise}</div>
+              <div class="log-meta">${pr.reps} Wdh · ${dateStr}</div>
+            </div>
+            <div class="log-weight">${pr.weight} kg</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ── DEBUG ──────────────────────────────────────────────────────
+    function updateDebug() {
+      const info = {
+        sandbox:    true,
+        userID:     currentUser,
+        logEntries: trainingLog.length,
+        prCount:    Object.keys(personalRecords).length,
+        backendURL: localStorage.getItem(STORAGE_KEY_URL) || '(nicht gesetzt)',
+        syncReady:  false,
+        storageUsed: JSON.stringify(trainingLog).length + ' Zeichen',
+        timestamp:  new Date().toISOString()
+      };
+      document.getElementById('debug-output').textContent = JSON.stringify(info, null, 2);
+    }
+
+    // ── ACTIONS ────────────────────────────────────────────────────
+    function clearAllData() {
+      if (!confirm('Alle lokalen Daten für ' + currentUser + ' löschen?')) return;
+      localStorage.removeItem(STORAGE_KEY_LOG + '_' + currentUser);
+      localStorage.removeItem(STORAGE_KEY_PRS + '_' + currentUser);
+      trainingLog = [];
+      personalRecords = {};
+      renderLog();
+      renderPRs();
+      updateDebug();
+      showToast('Daten gelöscht');
+    }
+
+    function exportData() {
+      const data = {
+        userID:      currentUser,
+        exportedAt:  new Date().toISOString(),
+        trainingLog,
+        personalRecords
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'plateau-brecher-' + currentUser + '-export.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function saveBackendUrl() {
+      const url = document.getElementById('backend-url-input').value.trim();
+      if (!url) { showToast('Keine URL eingegeben'); return; }
+      localStorage.setItem(STORAGE_KEY_URL, url);
+      showToast('Backend-URL gespeichert (inaktiv im Sandbox-Modus)');
+      updateDebug();
+    }
+
+    // ── TOAST ──────────────────────────────────────────────────────
+    let toastTimer = null;
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+    }
+  </script>
+
+</body>
+</html>
